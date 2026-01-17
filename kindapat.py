@@ -14,20 +14,20 @@ import sys
 from pathlib import Path
 
 # Load the CLAUDE.md as system prompt
-CLAUDE_MD_PATH = Path(__file__).parent / "CLAUDE.md"
+_CLAUDE_MD_PATH = Path(__file__).parent / "CLAUDE.md"
 
-def load_system_prompt() -> str:
+def _load_system_prompt() -> str:
     """Load the CLAUDE.md file as the system prompt."""
-    if CLAUDE_MD_PATH.exists():
-        return CLAUDE_MD_PATH.read_text()
+    if _CLAUDE_MD_PATH.exists():
+        return _CLAUDE_MD_PATH.read_text()
     else:
-        raise FileNotFoundError(f"CLAUDE.md not found at {CLAUDE_MD_PATH}")
+        raise FileNotFoundError(f"CLAUDE.md not found at {_CLAUDE_MD_PATH}")
 
-def create_client() -> anthropic.Anthropic:
+def _create_client() -> anthropic.Anthropic:
     """Create the Anthropic client."""
     return anthropic.Anthropic()  # Uses ANTHROPIC_API_KEY env var
 
-def chat(client: anthropic.Anthropic, system_prompt: str, user_message: str, stream: bool = False) -> str:
+def _chat(client: anthropic.Anthropic, system_prompt: str, user_message: str, stream: bool = False) -> str:
     """Send a message to KindaPat and get a response."""
     
     if stream:
@@ -52,7 +52,7 @@ def chat(client: anthropic.Anthropic, system_prompt: str, user_message: str, str
         )
         return response.content[0].text
 
-def interactive_mode(client: anthropic.Anthropic, system_prompt: str):
+def _interactive_mode(client: anthropic.Anthropic, system_prompt: str):
     """Run KindaPat in interactive mode."""
     print("\n" + "═" * 60)
     print("  KindaPat — Imagist Design Agent")
@@ -114,7 +114,7 @@ Examples:
     
     # Load system prompt
     try:
-        system_prompt = load_system_prompt()
+        system_prompt = _load_system_prompt()
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
@@ -126,16 +126,16 @@ Examples:
     
     # Create client
     try:
-        client = create_client()
+        client = _create_client()
     except anthropic.AuthenticationError:
         print("Error: ANTHROPIC_API_KEY not set or invalid", file=sys.stderr)
         sys.exit(1)
     
     # Run in appropriate mode
     if args.interactive:
-        interactive_mode(client, system_prompt)
+        _interactive_mode(client, system_prompt)
     elif args.prompt:
-        response = chat(client, system_prompt, args.prompt, stream=args.stream)
+        response = _chat(client, system_prompt, args.prompt, stream=args.stream)
         if not args.stream:
             print(response)
     else:
