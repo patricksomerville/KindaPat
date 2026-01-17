@@ -21,10 +21,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-CLAUDE_MD_PATH = Path(__file__).parent / "CLAUDE.md"
+_CLAUDE_MD_PATH = Path(__file__).parent / "CLAUDE.md"
 
 # Tool definitions
-TOOLS = [
+_TOOLS = [
     {
         "name": "bash",
         "description": "Execute a bash command. Use this to run commands, install packages, or interact with the system.",
@@ -87,7 +87,7 @@ TOOLS = [
     }
 ]
 
-def execute_tool(name: str, input_data: dict) -> str:
+def _execute_tool(name: str, input_data: dict) -> str:
     """Execute a tool and return the result."""
     
     if name == "bash":
@@ -144,10 +144,10 @@ def execute_tool(name: str, input_data: dict) -> str:
     
     return f"Error: Unknown tool: {name}"
 
-def load_system_prompt() -> str:
+def _load_system_prompt() -> str:
     """Load the CLAUDE.md file as the system prompt."""
-    if CLAUDE_MD_PATH.exists():
-        base_prompt = CLAUDE_MD_PATH.read_text()
+    if _CLAUDE_MD_PATH.exists():
+        base_prompt = _CLAUDE_MD_PATH.read_text()
         # Add agentic instructions
         agentic_addition = """
 
@@ -171,9 +171,9 @@ Don't ask for permission—act. State your assumption and execute.
 """
         return base_prompt + agentic_addition
     else:
-        raise FileNotFoundError(f"CLAUDE.md not found at {CLAUDE_MD_PATH}")
+        raise FileNotFoundError(f"CLAUDE.md not found at {_CLAUDE_MD_PATH}")
 
-def run_agent(client: anthropic.Anthropic, system_prompt: str, user_message: str):
+def _run_agent(client: anthropic.Anthropic, system_prompt: str, user_message: str):
     """Run the agent loop until task completion."""
     
     messages = [{"role": "user", "content": user_message}]
@@ -186,7 +186,7 @@ def run_agent(client: anthropic.Anthropic, system_prompt: str, user_message: str
             model="claude-sonnet-4-20250514",
             max_tokens=8192,
             system=system_prompt,
-            tools=TOOLS,
+            tools=_TOOLS,
             messages=messages
         )
         
@@ -208,7 +208,7 @@ def run_agent(client: anthropic.Anthropic, system_prompt: str, user_message: str
                 print(f"\n\033[93m⚡ {tool_name}:\033[0m {json.dumps(tool_input, indent=2)[:200]}...")
                 
                 # Execute the tool
-                result = execute_tool(tool_name, tool_input)
+                result = _execute_tool(tool_name, tool_input)
                 
                 # Show truncated result
                 display_result = result[:500] + "..." if len(result) > 500 else result
@@ -245,7 +245,7 @@ def run_agent(client: anthropic.Anthropic, system_prompt: str, user_message: str
     
     print("\n\033[90m─── Done ───\033[0m")
 
-def interactive_agent(client: anthropic.Anthropic, system_prompt: str):
+def _interactive_agent(client: anthropic.Anthropic, system_prompt: str):
     """Run the agent in interactive mode."""
     print("\n" + "═" * 60)
     print("  KindaPat Agent — Agentic Mode")
@@ -264,7 +264,7 @@ def interactive_agent(client: anthropic.Anthropic, system_prompt: str):
         if user_input.lower() in ('quit', 'exit', 'q'):
             break
         
-        run_agent(client, system_prompt, user_input)
+        _run_agent(client, system_prompt, user_input)
         print()
 
 def main():
@@ -277,7 +277,7 @@ def main():
     args = parser.parse_args()
     
     try:
-        system_prompt = load_system_prompt()
+        system_prompt = _load_system_prompt()
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
@@ -289,9 +289,9 @@ def main():
         sys.exit(1)
     
     if args.interactive:
-        interactive_agent(client, system_prompt)
+        _interactive_agent(client, system_prompt)
     elif args.prompt:
-        run_agent(client, system_prompt, args.prompt)
+        _run_agent(client, system_prompt, args.prompt)
     else:
         parser.print_help()
 
